@@ -1,0 +1,220 @@
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #E0FFFF;
+    margin: 0;
+    padding: 0;
+    color: #343a40;
+    line-height: 1.6;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 30px;
+}
+
+
+.detalle-entrevista {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.detalle-entrevista h2 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 1.8rem;
+}
+
+
+.detalle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.detalle-header .codigo {
+    font-weight: 600;
+    color: #3498db;
+    font-size: 1.1rem;
+    background-color: #e8f4fc;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.detalle-header .fecha {
+    color: #6c757d;
+    font-size: 0.95rem;
+    background-color: #f8f9fa;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.detalle-item {
+    background-color: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.detalle-item h2 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.detalle-item h3 {
+    color: #495057;
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detalle-item p {
+    margin: 12px 0;
+    color: #495057;
+}
+
+.detalle-item p strong {
+    color: #2c3e50;
+    display: inline-block;
+    min-width: 160px;
+    font-weight: 600;
+}
+
+/* ===== DESCRIPCIÓN ===== */
+.descripcion {
+    background-color: #ffffff;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-top: 10px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    color: #495057;
+}
+
+
+.botones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid #e9ecef;
+    gap: 15px;
+}
+
+.btn-volver {
+    background-color: #6c757d;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
+}
+
+.btn-volver:hover {
+    background-color: #5a6268;
+}
+
+.form-pdf {
+    display: inline;
+    margin: 0;
+}
+
+.btn-pdf {
+    background-color: #e74c3c;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.btn-pdf:hover {
+    background-color: #c0392b;
+}
+
+.icono-pdf {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .detalle-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .botones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-volver, .btn-pdf {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .detalle-entrevista {
+        padding: 20px;
+    }
+    
+    .detalle-item p strong {
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .detalle-item {
+        padding: 20px;
+    }
+}

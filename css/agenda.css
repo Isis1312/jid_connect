@@ -1,0 +1,496 @@
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;  
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #E0FFFF;
+    color: #333;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 30px;
+    width: calc(100% - 280px);
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;    
+    flex-direction: column;
+    align-items: center;    
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+
+
+/* ESTADOS */
+.estado-select {
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align: center;
+    min-width: 120px;
+    display: inline-block;
+    font-size: 0.9em;
+    background-color: white;
+    color: #333;
+    margin: 2px 0;
+}
+
+.estado-select::-ms-expand {
+    display: none;
+}
+
+/* Estado Pendiente */
+.estado-select.estado-pendiente {
+    background-color: #FFA500;
+    color: white;
+    border: 1px solid #e69500;
+}
+
+/* Estado En Progreso */
+.estado-select.estado-en_progreso {
+    background-color: #FFD700;
+    color: #333;
+    border: 1px solid #e6c700;
+}
+
+/* Estado Completado */
+.estado-select.estado-completado {
+    background-color: #28a745;
+    color: white;
+    border: 1px solid #218838;
+}
+
+/* Estado Cancelado */
+.estado-select.estado-cancelado {
+    background-color: #dc3545;
+    color: white;
+    border: 1px solid #c82333;
+}
+
+.estado-select:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.estado-select:focus {
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.estado-select option {
+    padding: 8px;
+    background: white;
+    color: #333;
+    text-align: center;
+}
+
+/* Contenedor del select */
+td form {
+    display: flex;
+    justify-content: center;
+}
+
+/* Estilos para la tarjeta */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-bottom: 2rem;
+    background-color: white;
+}
+
+.card-header {
+    background-color: #00CED1;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-header h2.h5 {
+    color: white;
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Estilos para la tabla */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+table {
+    margin-bottom: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+}
+
+th {
+    font-weight: 600;
+    padding: 1rem !important;
+    background-color: #00CED1;
+    color: white;
+    position: sticky;
+    top: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+td {
+    vertical-align: middle;
+    padding: 0.75rem !important;
+    background-color: white;
+    text-align: center;
+}
+
+tr:nth-child(even) td {
+    background-color: #f8f9fa;
+}
+
+/* Estilos de botones */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-action i {
+    font-size: 16px;
+    margin: 0;
+    display: flex;
+}
+
+.btn-pdf {
+    background-color: #00CED1;
+    color: white;
+}
+
+.btn-pdf:hover {
+    background-color: #0f6566;
+    transform: scale(1.05);
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+    transform: scale(1.05);
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+/* Formularios */
+.form-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.form-control, .form-select {
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #00CED1;
+    box-shadow: 0 0 0 0.25rem rgba(0, 206, 209, 0.25);
+}
+
+.btn-primary {
+    background-color: #00CED1;
+    border-color: #00CED1;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: #00b4b7;
+    border-color: #00a9ac;
+}
+
+/* Alertas */
+.alert {
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+}
+
+/* RESPONSIVIDAD  */
+@media (max-width: 1440px) {
+    .main-content {
+        padding: 25px;
+    }
+    
+    .content-wrapper {
+        max-width: 1100px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        margin-left: 240px;
+        width: calc(100% - 240px);
+        padding: 20px;
+    }
+    
+    .card-header h2.h5 {
+        font-size: 1.15rem;
+    }
+    
+    .estado-select {
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+    }
+    
+    .card-header {
+        padding: 12px 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    th {
+        padding: 0.8rem !important;
+    }
+    
+    td {
+        padding: 0.6rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .content-wrapper {
+        width: 100%;
+    }
+    
+    .card, .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    table {
+        font-size: 0.85rem;
+    }
+    
+    th, td {
+        padding: 0.5rem !important;
+    }
+    
+    .estado-select {
+        min-width: 95px;
+        font-size: 0.75em;
+        padding: 4px 8px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .btn-action {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .btn-action i {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        padding: 12px;
+    }
+    
+    .card-header h2.h5 {
+        font-size: 0.95rem;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .card-header {
+        padding: 10px;
+    }
+    
+    .card-body {
+        padding: 10px;
+    }
+    
+    table {
+        font-size: 0.8rem;
+    }
+    
+    th {
+        padding: 0.6rem 0.4rem !important;
+    }
+    
+    td {
+        padding: 0.4rem !important;
+    }
+    
+    .estado-select {
+        min-width: 85px;
+        font-size: 0.7em;
+    }
+    
+    .btn-action {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .btn-action i {
+        font-size: 12px;
+    }
+    
+    .form-control, .form-select {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .btn-primary {
+        padding: 7px 15px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 10px;
+    }
+    
+    .card-header h2.h5 {
+        font-size: 0.9rem;
+    }
+    
+    table {
+        font-size: 0.75rem;
+    }
+    
+    th {
+        padding: 0.5rem 0.3rem !important;
+    }
+    
+    td {
+        padding: 0.3rem !important;
+    }
+    
+    .estado-select {
+        min-width: 75px;
+        font-size: 0.65em;
+        padding: 3px 6px;
+    }
+    
+    .action-buttons {
+        gap: 3px;
+    }
+    
+    .btn-action {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .btn-action i {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 360px) {
+    .main-content {
+        padding: 8px;
+    }
+    
+    .card-header h2.h5 {
+        font-size: 0.85rem;
+    }
+    
+    table {
+        font-size: 0.7rem;
+    }
+    
+    .estado-select {
+        min-width: 70px;
+    }
+    
+    .btn-action {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .btn-action i {
+        font-size: 10px;
+    }
+}
