@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar_pdf'])) {
             margin-top: 5px;
         }
         .company-info {
-            background: #3498db;
+            background: #00CED1;
             color: white;
             padding: 10px;
             border-radius: 5px;
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar_pdf'])) {
         }
         .section h2 {
             color: #2c3e50;
-            border-bottom: 2px solid #3498db;
+            border-bottom: 2px solid #00CED1;
             padding-bottom: 8px;
             margin-top: 0;
             font-size: 20px;
@@ -116,13 +116,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generar_pdf'])) {
             padding: 8px;
             background: #f8f9fa;
             border-radius: 4px;
-            border-left: 3px solid #3498db;
+            border-left: 3px solid #00CED1;
         }
         .description-box {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 5px;
-            border-left: 3px solid #3498db;
+            border-left: 3px solid #00CED1;
             margin-top: 10px;
         }
         .footer {

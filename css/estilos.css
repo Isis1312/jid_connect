@@ -104,7 +104,39 @@ textarea {
     font-family: inherit;
 }
 
+/* grafico */
 
+.btn-grafico {
+            padding: 8px 15px;
+            background: #00CED1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+    
+        }
+        
+        .btn-grafico:hover {
+            background: #00CED1;
+        }
+        
+        .grafico-container {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            display: none;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
 
 
 /* ESTADOS */

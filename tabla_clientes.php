@@ -41,6 +41,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cambiar_estado'])) {
     exit;
 }
 
+// Obtener conteo de clientes activos e inactivos
+$sqlConteo = "SELECT estado, COUNT(*) as total FROM clientes GROUP BY estado";
+$resultConteo = mysqli_query($conexion, $sqlConteo);
+
+$conteoClientes = [
+    'activos' => 0,
+    'inactivos' => 0
+];
+
+if ($resultConteo) {
+    while ($fila = mysqli_fetch_assoc($resultConteo)) {
+        if ($fila['estado'] == 'activo') {
+            $conteoClientes['activos'] = (int)$fila['total'];
+        } else if ($fila['estado'] == 'inactivo') {
+            $conteoClientes['inactivos'] = (int)$fila['total'];
+        }
+    }
+}
+
 // Procesar búsqueda
 $busqueda = '';
 $sql = "SELECT * FROM clientes";
@@ -64,6 +83,7 @@ $total_resultados = mysqli_num_rows($resultado);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/estilos.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
    <div class="menu-container">
@@ -89,9 +109,9 @@ $total_resultados = mysqli_num_rows($resultado);
 
         <h3>Clientes</h3>
         
-        <!-- Formulario de búsqueda -->
+        <!-- Contenedor de búsqueda y botón de gráfico -->
         <div class="busqueda-container">
-            <form method="GET" action="" class="d-flex">
+            <form method="GET" action="">
                 <input type="text" name="buscar" placeholder="Buscar por nombre..." 
                        value="<?= htmlspecialchars($busqueda) ?>">
                 <button type="submit">Buscar</button>
@@ -99,6 +119,18 @@ $total_resultados = mysqli_num_rows($resultado);
                     <a href="tabla_clientes.php" class="ver-todos-btn">Ver todos</a>
                 <?php endif; ?>
             </form>
+            
+            <!-- Botón para mostrar el gráfico -->
+            <button id="btnGrafico" class="btn-grafico">
+                <i class="bi bi-bar-chart"></i> Mostrar Gráfico
+            </button>
+        </div>
+        
+        <!-- Contenedor del gráfico -->
+        <div id="graficoContainer" class="grafico-container">
+            <div class="chart-container">
+                <canvas id="clientesChart"></canvas>
+            </div>
         </div>
         
         <!-- Mensaje de resultados de búsqueda -->
@@ -192,6 +224,88 @@ $total_resultados = mysqli_num_rows($resultado);
             alert.style.display = 'none';
         });
     }, 5000);
+    
+    // Datos para el gráfico 
+    const datosGrafico = {
+        activos: <?= $conteoClientes['activos'] ?>,
+        inactivos: <?= $conteoClientes['inactivos'] ?>
+    };
+    
+    // Elementos DOM
+    const btnGrafico = document.getElementById('btnGrafico');
+    const graficoContainer = document.getElementById('graficoContainer');
+    let chartInstance = null;
+    
+    // Función para crear/actualizar el gráfico
+    function crearGrafico() {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        
+        const ctx = document.getElementById('clientesChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Activos', 'Inactivos'],
+                datasets: [{
+                    label: 'Cantidad de Clientes',
+                    data: [datosGrafico.activos, datosGrafico.inactivos],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.5)', // Azul para activos
+                        'rgba(255, 99, 132, 0.5)'  // Rojo para inactivos
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Clientes',
+                        font: {
+                            size: 16
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Evento para mostrar/ocultar el gráfico
+    btnGrafico.addEventListener('click', () => {
+        if (graficoContainer.style.display === 'none') {
+            graficoContainer.style.display = 'block';
+            crearGrafico();
+            btnGrafico.innerHTML = '<i class="bi bi-bar-chart"></i> Ocultar Gráfico';
+        } else {
+            graficoContainer.style.display = 'none';
+            btnGrafico.innerHTML = '<i class="bi bi-bar-chart"></i> Mostrar Gráfico';
+        }
+    });
+    
+    // Verificar si hay mensaje de éxito para mostrar el gráfico
+    <?php if (isset($_SESSION['mensaje_exito'])): ?>
+        graficoContainer.style.display = 'block';
+        crearGrafico();
+        btnGrafico.innerHTML = '<i class="bi bi-bar-chart"></i> Ocultar Gráfico';
+    <?php endif; ?>
     </script>
 </body>
 </html>
