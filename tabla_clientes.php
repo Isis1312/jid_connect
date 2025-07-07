@@ -12,7 +12,7 @@ if (!isset($_SESSION['id'])) {
 
 // Verificar permisos para ver clientes
 if (!tienePermiso('clientes', 'puede_ver')) {
-    header("Location: acceso_denegado.php");
+    header("Location: error.php");
     exit;
 }
 
@@ -109,7 +109,7 @@ $total_resultados = mysqli_num_rows($resultado);
 
         <h3>Clientes</h3>
         
-        <!-- Contenedor de búsqueda y botón de gráfico -->
+     
         <div class="busqueda-container">
             <form method="GET" action="">
                 <input type="text" name="buscar" placeholder="Buscar por nombre..." 
