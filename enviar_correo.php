@@ -29,7 +29,7 @@ function enviarCorreoConfirmacion($correo, $nombre, $servicio_id, $fecha, $hora,
         ];
         
         // Configuración del correo
-        $mail->setFrom('no-reply@xelar.com', 'Xelar CA');
+        $mail->setFrom('no-reply@jidconnect.com', 'JID CONNECT');
         $mail->addAddress($correo, $nombre);
         $mail->isHTML(true);
         $mail->Subject = "Confirmación de servicio #$servicio_id";
@@ -45,7 +45,7 @@ function enviarCorreoConfirmacion($correo, $nombre, $servicio_id, $fecha, $hora,
             <li><strong>Descripción:</strong> $descripcion</li>
         </ul>
         <p>Técnico asignado: $usuario_id</p>
-        <p>Gracias por confiar en Xelar CA.</p>
+        <p>Gracias por confiar en JID CONNECT.</p>
         ";
         
         $mail->send();

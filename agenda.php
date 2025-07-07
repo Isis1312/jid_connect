@@ -46,55 +46,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($fecha < date('Y-m-d')) {
                 $error = 'La fecha debe ser igual o posterior a hoy';
             } else {
-                try {
-                    // Insertar servicio
-                    $sql = "INSERT INTO servicios (cliente_id, usuario_id, fecha, hora, descripcion, estado) 
-                            VALUES (?, ?, ?, ?, ?, 'pendiente')";
-                    $stmt = $conexion->prepare($sql);
-                    
-                    if ($stmt) {
-                        $stmt->bind_param("issss", $cliente_id, $_SESSION['id'], $fecha, $hora, $descripcion);
+                // Validar rango horario (9AM a 4PM)
+                $hora_minutos = (int)substr($hora, 0, 2) * 60 + (int)substr($hora, 3, 2);
+                if ($hora_minutos < 540 || $hora_minutos > 960) { // 540 minutos = 9AM, 960 minutos = 4PM
+                    $error = 'La hora debe estar entre 9:00 AM y 4:00 PM';
+                } else {
+                    try {
+                        // Insertar servicio
+                        $sql = "INSERT INTO servicios (cliente_id, usuario_id, fecha, hora, descripcion, estado) 
+                                VALUES (?, ?, ?, ?, ?, 'pendiente')";
+                        $stmt = $conexion->prepare($sql);
                         
-                        if ($stmt->execute()) {
-                            $servicio_id = $conexion->insert_id;
+                        if ($stmt) {
+                            $stmt->bind_param("issss", $cliente_id, $_SESSION['id'], $fecha, $hora, $descripcion);
                             
-                            // Obtener datos del cliente para el correo
-                            $sql_cliente = "SELECT nombre, correo FROM clientes WHERE id = ?";
-                            $stmt_cliente = $conexion->prepare($sql_cliente);
-                            $stmt_cliente->bind_param("i", $cliente_id);
-                            $stmt_cliente->execute();
-                            $result = $stmt_cliente->get_result();
-                            
-                            if ($result->num_rows > 0) {
-                                $cliente = $result->fetch_assoc();
+                            if ($stmt->execute()) {
+                                $servicio_id = $conexion->insert_id;
                                 
-                                // Enviar correo de confirmación
-                                $resultadoCorreo = enviarCorreoConfirmacion(
-                                    $cliente['correo'],
-                                    $cliente['nombre'],
-                                    $servicio_id,
-                                    $fecha,
-                                    $hora,
-                                    $descripcion,
-                                    $_SESSION['nombre'] ?? 'Usuario'
-                                );
+                                // Obtener datos del cliente para el correo
+                                $sql_cliente = "SELECT nombre, correo FROM clientes WHERE id = ?";
+                                $stmt_cliente = $conexion->prepare($sql_cliente);
+                                $stmt_cliente->bind_param("i", $cliente_id);
+                                $stmt_cliente->execute();
+                                $result = $stmt_cliente->get_result();
                                 
-                                if ($resultadoCorreo['status']) {
-                                    $success = 'Servicio agendado y correo enviado correctamente';
-                                } else {
-                                    $warning = "Servicio agendado, pero error al enviar correo: " . $resultadoCorreo['message'];
+                                if ($result->num_rows > 0) {
+                                    $cliente = $result->fetch_assoc();
+                                    
+                                    // Enviar correo de confirmación
+                                    $resultadoCorreo = enviarCorreoConfirmacion(
+                                        $cliente['correo'],
+                                        $cliente['nombre'],
+                                        $servicio_id,
+                                        $fecha,
+                                        $hora,
+                                        $descripcion,
+                                        $_SESSION['nombre'] ?? 'Usuario'
+                                    );
+                                    
+                                    if ($resultadoCorreo['status']) {
+                                        $success = 'Servicio agendado y correo enviado correctamente';
+                                    } else {
+                                        $warning = "Servicio agendado, pero error al enviar correo: " . $resultadoCorreo['message'];
+                                    }
                                 }
+                                $stmt_cliente->close();
+                            } else {
+                                $error = "Error al agendar: " . $stmt->error;
                             }
-                            $stmt_cliente->close();
+                            $stmt->close();
                         } else {
-                            $error = "Error al agendar: " . $stmt->error;
+                            $error = "Error preparando la consulta: " . $conexion->error;
                         }
-                        $stmt->close();
-                    } else {
-                        $error = "Error preparando la consulta: " . $conexion->error;
+                    } catch (Exception $e) {
+                        $error = "Error al procesar el servicio: " . $e->getMessage();
                     }
-                } catch (Exception $e) {
-                    $error = "Error al procesar el servicio: " . $e->getMessage();
                 }
             }
         }
@@ -478,7 +484,8 @@ if ($result_servicios && $result_servicios->num_rows > 0) {
                             </div>
                             <div class="col-md-3">
                                 <label for="hora" class="form-label">Hora:</label>
-                                <input type="time" id="hora" name="hora" class="form-control" required>
+                                <input type="time" id="hora" name="hora" class="form-control" 
+                                       min="09:00" max="16:00" required>
                             </div>
                             <div class="col-12">
                                 <label for="descripcion" class="form-label">Descripción:</label>
@@ -590,13 +597,25 @@ if ($result_servicios && $result_servicios->num_rows > 0) {
 
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    // Validación de fecha en el cliente
+    // Validación de fecha y hora en el cliente
     document.getElementById('formAgendar')?.addEventListener('submit', function(e) {
         const fecha = document.getElementById('fecha').value;
+        const hora = document.getElementById('hora').value;
         const hoy = new Date().toISOString().split('T')[0];
         
+        // Validar fecha
         if (fecha < hoy) {
             alert('La fecha debe ser igual o posterior a hoy');
+            e.preventDefault();
+            return;
+        }
+        
+        // Validar hora (entre 9:00 y 16:00)
+        const [horas, minutos] = hora.split(':').map(Number);
+        const totalMinutos = horas * 60 + minutos;
+        
+        if (totalMinutos < 540 || totalMinutos > 960) { // 9:00 AM = 540 min, 4:00 PM = 960 min
+            alert('La hora debe estar entre 9:00 AM y 4:00 PM');
             e.preventDefault();
         }
     });

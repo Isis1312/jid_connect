@@ -3,6 +3,7 @@ session_start();
 require_once 'conexion.php';
 require_once 'permisos.php';
 $conexion = obtenerConexion();
+
 // Verificar permisos para agregar clientes
 if (!tienePermiso('clientes', 'puede_crear')) {
     header("Location: tabla_clientes.php");
@@ -20,7 +21,7 @@ if (isset($_POST['registrar'])) {
     $telefono = $_POST['telefono'];
     $n_equipos = $_POST['n_equipos'];
 
-    // Validaciones básicas
+    // Validaciones 
     if (empty($nombre) || empty($correo) || empty($ubicacion) || empty($rif) || empty($telefono) || empty($n_equipos)) {
         $mensaje_error = "Todos los campos son obligatorios";
     } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {

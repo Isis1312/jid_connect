@@ -1,5 +1,5 @@
 <?php
-// Control de sesión
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -38,35 +38,27 @@ if (!$cliente) {
 
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['actualizar'])) {
-    // Sanitizar entradas
-    $nombre = $conexion->real_escape_string(trim($_POST['nombre']));
+    // Sanitizar entradas 
     $correo = $conexion->real_escape_string(trim($_POST['correo']));
-    $ubicacion = $conexion->real_escape_string(trim($_POST['ubicacion']));
-    $rif = $conexion->real_escape_string(trim($_POST['rif']));
     $telefono = $conexion->real_escape_string(trim($_POST['telefono']));
     $n_equipos = intval($_POST['n_equipos']);
 
-    // Validaciones
-    if (empty($nombre)) $errores[] = "El nombre es obligatorio";
+    // Validaciones 
+    if (empty($correo)) $errores[] = "El correo es obligatorio";
     if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) $errores[] = "Correo electrónico inválido";
+    if (empty($telefono)) $errores[] = "El teléfono es obligatorio";
     if ($n_equipos <= 0) $errores[] = "El número de equipos debe ser mayor a cero";
 
     if (empty($errores)) {
         $sql = "UPDATE clientes SET 
-                nombre = ?, 
                 correo = ?, 
-                ubicacion = ?, 
-                rif = ?, 
                 telefono = ?, 
                 n_equipos = ? 
                 WHERE id = ?";
         
         $stmt = $conexion->prepare($sql);
-        $stmt->bind_param("sssssii", 
-            $nombre,
+        $stmt->bind_param("ssii", 
             $correo,
-            $ubicacion,
-            $rif,
             $telefono,
             $n_equipos,
             $id
@@ -93,6 +85,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['actualizar'])) {
     <style>
         .error { color: red; margin: 10px 0; padding: 10px; background: #ffeeee; }
         .mensaje-exito { color: green; margin: 10px 0; padding: 10px; background: #eeffee; }
+        .campo-no-editable {
+            background-color: #f0f0f0;
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -125,16 +124,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['actualizar'])) {
                     <input type="hidden" name="id" value="<?= htmlspecialchars($cliente['id']) ?>">
 
                     <label>Nombre:</label>
-                    <input type="text" name="nombre" value="<?= htmlspecialchars($cliente['nombre']) ?>" required>
+                    <div class="campo-no-editable"><?= htmlspecialchars($cliente['nombre']) ?></div>
+
+                    <label>Ubicación:</label>
+                    <div class="campo-no-editable"><?= htmlspecialchars($cliente['ubicacion']) ?></div>
+
+                    <label>RIF:</label>
+                    <div class="campo-no-editable"><?= htmlspecialchars($cliente['rif']) ?></div>
 
                     <label>Correo:</label>
                     <input type="email" name="correo" value="<?= htmlspecialchars($cliente['correo']) ?>" required>
-
-                    <label>Ubicación:</label>
-                    <input type="text" name="ubicacion" value="<?= htmlspecialchars($cliente['ubicacion']) ?>" required>
-
-                    <label>RIF:</label>
-                    <input type="text" name="rif" value="<?= htmlspecialchars($cliente['rif']) ?>" required>
 
                     <label>Teléfono:</label>
                     <input type="tel" name="telefono" value="<?= htmlspecialchars($cliente['telefono']) ?>" required>
@@ -143,7 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['actualizar'])) {
                     <input type="number" name="n_equipos" value="<?= htmlspecialchars($cliente['n_equipos']) ?>" min="1" required>
 
                     <button type="submit" name="actualizar">Actualizar Cliente</button>
-                    <a href="tabla_clientes.php" class="btn">Cancelar</a>
+
+                    <div class="btn-cancelar">
+                       <a href="tabla_clientes.php" >Cancelar</a>
+                    </div>
                 </form>
             </div>
         </div>

@@ -61,21 +61,31 @@ th {
     top: 0;
 }
 
-/* ENLACES */
-a:link, a:visited {
-    background-color: #ffc107;
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
-    display: inline-block;
+/*boton cancerlar*/
+
+.btn-cancelar{
+    background-color: #00CED1;
+    padding: 8px 24px;
+    margin: 20px auto 0;
+    width: 37%;
+    border: none;
     border-radius: 5px;
+    font-size: 20px;
+    cursor: pointer;
     transition: background-color 0.3s;
+    display: block;
+    text-align: center;
+
+}
+a{
+    text-decoration: none;
+    color: white;
 }
 
-a:hover, a:active {
-    background-color: #daff07;
-    color: #333;
+.btn-cancelar:hover {
+    background-color: #009fa3;
 }
+
 
 /* FORMULARIOS */
 input[type=text], 
@@ -94,24 +104,8 @@ textarea {
     font-family: inherit;
 }
 
-input[type=submit], 
-button {
-    width: 100%;
-    background-color: #00CED1;
-    color: white;
-    padding: 12px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
 
-input[type=submit]:hover, 
-button:hover {
-    background-color: #ffc107;
-}
+
 
 /* ESTADOS */
 .estado-select {
@@ -373,31 +367,15 @@ button[type="submit"]:hover {
 }
 
 .btn-edit {
-    background-color: #ffc107;
-    color: #212529;
-}
-
-.btn-edit:hover {
-    background-color: #ffc107;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-    color: white;
-}
-
-.btn-delete:hover {
-    background-color: #c82333;
-}
-
-.btn-pdf {
     background-color: #00CED1;
     color: white;
 }
 
-.btn-pdf:hover {
-    background-color: #009fa3;
+.btn-edit:hover {
+    background-color: #068082;
 }
+
+
 
 /* RESPONSIVIDAD */
 @media (max-width: 1024px) {
