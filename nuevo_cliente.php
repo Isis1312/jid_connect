@@ -14,26 +14,58 @@ $mensaje_exito = '';
 $mensaje_error = '';
 
 if (isset($_POST['registrar'])) {
-    $nombre = $_POST['nombre'];
-    $correo = $_POST['correo'];
-    $ubicacion = $_POST['ubicacion'];
-    $rif = $_POST['rif'];
-    $telefono = $_POST['telefono'];
-    $n_equipos = $_POST['n_equipos'];
+    $nombre = trim($_POST['nombre']);
+    $correo = trim($_POST['correo']);
+    $ubicacion = trim($_POST['ubicacion']);
+    $rif = trim($_POST['rif']);
+    $telefono = trim($_POST['telefono']);
+    $n_equipos = trim($_POST['n_equipos']);
 
-    // Validaciones 
+    // Validaciones básicas
     if (empty($nombre) || empty($correo) || empty($ubicacion) || empty($rif) || empty($telefono) || empty($n_equipos)) {
         $mensaje_error = "Todos los campos son obligatorios";
-    } elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-        $mensaje_error = "El formato del correo electrónico no es válido";
     } elseif (!is_numeric($n_equipos) || $n_equipos < 1) {
         $mensaje_error = "El número de equipos debe ser un valor numérico mayor a cero";
-    } else {
+    } 
+    // Validar RIF
+    elseif (!ctype_digit($rif) || strlen($rif) !== 10) {
+        $mensaje_error = "El RIF debe contener exactamente 10 dígitos numéricos";
+    } 
+    // Validar teléfono
+    elseif (!ctype_digit($telefono) || strlen($telefono) !== 11) {
+        $mensaje_error = "El teléfono debe contener exactamente 11 dígitos numéricos";
+    } 
+    // Validar formato de correo
+    elseif (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        $mensaje_error = "El formato del correo electrónico no es válido";
+    } 
+
+    // Verificar duplicados solo si no hay errores previos
+    if (empty($mensaje_error)) {
+        $sql_verificar = "SELECT id FROM clientes WHERE rif = ? OR nombre = ? OR correo = ?";
+        $stmt_verificar = $conexion->prepare($sql_verificar);
+        
+        if ($stmt_verificar) {
+            $stmt_verificar->bind_param("sss", $rif, $nombre, $correo);
+            $stmt_verificar->execute();
+            $resultado_verificar = $stmt_verificar->get_result();
+            
+            if ($resultado_verificar->num_rows > 0) {
+                $mensaje_error = "Ya existe un cliente con el mismo RIF, nombre o correo electrónico";
+            }
+            $stmt_verificar->close();
+        } else {
+            $mensaje_error = "Error al verificar duplicados: " . $conexion->error;
+        }
+    }
+
+    // Insertar si no hay errores
+    if (empty($mensaje_error)) {
         $sql = "INSERT INTO clientes (nombre, correo, ubicacion, rif, telefono, n_equipos) VALUES (?,?,?,?,?,?)";
         $stmt = $conexion->prepare($sql);
 
         if ($stmt) {
-            $stmt->bind_param("ssssss", $nombre, $correo, $ubicacion, $rif, $telefono, $n_equipos);
+            $stmt->bind_param("sssssi", $nombre, $correo, $ubicacion, $rif, $telefono, $n_equipos);
             $resultado = $stmt->execute();
 
             if ($resultado) {
@@ -128,10 +160,10 @@ if (isset($_POST['registrar'])) {
                     <input type="text" name="ubicacion" value="<?= isset($_POST['ubicacion']) ? htmlspecialchars($_POST['ubicacion']) : '' ?>" required><br>
                     
                     <label>RIF:</label>
-                    <input type="text" name="rif" value="<?= isset($_POST['rif']) ? htmlspecialchars($_POST['rif']) : '' ?>" required><br>
+                    <input type="text" name="rif" value="<?= isset($_POST['rif']) ? htmlspecialchars($_POST['rif']) : '' ?>" required maxlength="10"><br>
                     
                     <label>Número de contacto:</label>
-                    <input type="tel" name="telefono" value="<?= isset($_POST['telefono']) ? htmlspecialchars($_POST['telefono']) : '' ?>" required><br>
+                    <input type="tel" name="telefono" value="<?= isset($_POST['telefono']) ? htmlspecialchars($_POST['telefono']) : '' ?>" required maxlength="11"><br>
                     
                     <label>Número de equipos en la empresa:</label>
                     <input type="number" name="n_equipos" value="<?= isset($_POST['n_equipos']) ? htmlspecialchars($_POST['n_equipos']) : '' ?>" min="1" required><br>

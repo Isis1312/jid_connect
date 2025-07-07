@@ -46,58 +46,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($fecha < date('Y-m-d')) {
                 $error = 'La fecha debe ser igual o posterior a hoy';
             } else {
-                // Validar rango horario (9AM a 4PM)
+                // Validar rango horario 
                 $hora_minutos = (int)substr($hora, 0, 2) * 60 + (int)substr($hora, 3, 2);
-                if ($hora_minutos < 540 || $hora_minutos > 960) { // 540 minutos = 9AM, 960 minutos = 4PM
+                if ($hora_minutos < 540 || $hora_minutos > 960) { 
                     $error = 'La hora debe estar entre 9:00 AM y 4:00 PM';
                 } else {
                     try {
-                        // Insertar servicio
-                        $sql = "INSERT INTO servicios (cliente_id, usuario_id, fecha, hora, descripcion, estado) 
-                                VALUES (?, ?, ?, ?, ?, 'pendiente')";
-                        $stmt = $conexion->prepare($sql);
+                        // Verificar disponibilidad
+                        $sql_verificar = "SELECT COUNT(*) AS total 
+                                          FROM servicios 
+                                          WHERE fecha = ? AND hora = ? 
+                                          AND cliente_id = ?";
+                        $stmt_verificar = $conexion->prepare($sql_verificar);
+                        $stmt_verificar->bind_param("ssi", $fecha, $hora, $cliente_id);
+                        $stmt_verificar->execute();
+                        $result_verificar = $stmt_verificar->get_result();
+                        $row = $result_verificar->fetch_assoc();
                         
-                        if ($stmt) {
-                            $stmt->bind_param("issss", $cliente_id, $_SESSION['id'], $fecha, $hora, $descripcion);
-                            
-                            if ($stmt->execute()) {
-                                $servicio_id = $conexion->insert_id;
-                                
-                                // Obtener datos del cliente para el correo
-                                $sql_cliente = "SELECT nombre, correo FROM clientes WHERE id = ?";
-                                $stmt_cliente = $conexion->prepare($sql_cliente);
-                                $stmt_cliente->bind_param("i", $cliente_id);
-                                $stmt_cliente->execute();
-                                $result = $stmt_cliente->get_result();
-                                
-                                if ($result->num_rows > 0) {
-                                    $cliente = $result->fetch_assoc();
-                                    
-                                    // Enviar correo de confirmación
-                                    $resultadoCorreo = enviarCorreoConfirmacion(
-                                        $cliente['correo'],
-                                        $cliente['nombre'],
-                                        $servicio_id,
-                                        $fecha,
-                                        $hora,
-                                        $descripcion,
-                                        $_SESSION['nombre'] ?? 'Usuario'
-                                    );
-                                    
-                                    if ($resultadoCorreo['status']) {
-                                        $success = 'Servicio agendado y correo enviado correctamente';
-                                    } else {
-                                        $warning = "Servicio agendado,  error al enviar correo: " . $resultadoCorreo['message'];
-                                    }
-                                }
-                                $stmt_cliente->close();
-                            } else {
-                                $error = "Error al agendar: " . $stmt->error;
-                            }
-                            $stmt->close();
+                        if ($row['total'] > 0) {
+                            $error = 'Este cliente ya tiene un servicio agendado para esta fecha y hora.';
                         } else {
-                            $error = "Error preparando la consulta: " . $conexion->error;
+                            // Verificar si la hora ya está ocupada (cualquier cliente)
+                            $sql_verificar_hora = "SELECT COUNT(*) AS total 
+                                                   FROM servicios 
+                                                   WHERE fecha = ? AND hora = ?";
+                            $stmt_verificar_hora = $conexion->prepare($sql_verificar_hora);
+                            $stmt_verificar_hora->bind_param("ss", $fecha, $hora);
+                            $stmt_verificar_hora->execute();
+                            $result_verificar_hora = $stmt_verificar_hora->get_result();
+                            $row_hora = $result_verificar_hora->fetch_assoc();
+                            
+                            if ($row_hora['total'] > 0) {
+                                $error = 'Ya existe un servicio agendado para esta fecha y hora. Por favor elija otra hora.';
+                            } else {
+                                // Insertar servicio
+                                $sql = "INSERT INTO servicios (cliente_id, usuario_id, fecha, hora, descripcion, estado) 
+                                        VALUES (?, ?, ?, ?, ?, 'pendiente')";
+                                $stmt = $conexion->prepare($sql);
+                                
+                                if ($stmt) {
+                                    $stmt->bind_param("issss", $cliente_id, $_SESSION['id'], $fecha, $hora, $descripcion);
+                                    
+                                    if ($stmt->execute()) {
+                                        $servicio_id = $conexion->insert_id;
+                                        
+                                        // Obtener datos del cliente para el correo
+                                        $sql_cliente = "SELECT nombre, correo FROM clientes WHERE id = ?";
+                                        $stmt_cliente = $conexion->prepare($sql_cliente);
+                                        $stmt_cliente->bind_param("i", $cliente_id);
+                                        $stmt_cliente->execute();
+                                        $result = $stmt_cliente->get_result();
+                                        
+                                        if ($result->num_rows > 0) {
+                                            $cliente = $result->fetch_assoc();
+                                            
+                                            // Enviar correo de confirmación
+                                            $resultadoCorreo = enviarCorreoConfirmacion(
+                                                $cliente['correo'],
+                                                $cliente['nombre'],
+                                                $servicio_id,
+                                                $fecha,
+                                                $hora,
+                                                $descripcion,
+                                                $_SESSION['nombre'] ?? 'Usuario'
+                                            );
+                                            
+                                            if ($resultadoCorreo['status']) {
+                                                $success = 'Servicio agendado y correo enviado correctamente';
+                                            } else {
+                                                $warning = "Servicio agendado,  error al enviar correo: " . $resultadoCorreo['message'];
+                                            }
+                                        }
+                                        $stmt_cliente->close();
+                                    } else {
+                                        $error = "Error al agendar: " . $stmt->error;
+                                    }
+                                    $stmt->close();
+                                } else {
+                                    $error = "Error preparando la consulta: " . $conexion->error;
+                                }
+                            }
                         }
+                        $stmt_verificar->close();
                     } catch (Exception $e) {
                         $error = "Error al procesar el servicio: " . $e->getMessage();
                     }
@@ -438,6 +468,7 @@ if ($result_servicios && $result_servicios->num_rows > 0) {
         <div class="container">
         <div class="main-content">
             <div class="content-wrapper">
+
             <!-- Mensajes de estado -->
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger alert-dismissible fade show">
@@ -614,7 +645,7 @@ if ($result_servicios && $result_servicios->num_rows > 0) {
         const [horas, minutos] = hora.split(':').map(Number);
         const totalMinutos = horas * 60 + minutos;
         
-        if (totalMinutos < 540 || totalMinutos > 960) { // 9:00 AM = 540 min, 4:00 PM = 960 min
+        if (totalMinutos < 540 || totalMinutos > 960) { 
             alert('La hora debe estar entre 9:00 AM y 4:00 PM');
             e.preventDefault();
         }
